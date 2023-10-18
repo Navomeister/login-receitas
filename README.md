@@ -1,2 +1,3 @@
 # login-receitas
-aplicativo de receitas com login &lt;br>
+aplicativo de receitas com login <br>
+atualmente testando banco de dados
