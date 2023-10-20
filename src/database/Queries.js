@@ -21,7 +21,6 @@ export function criaTabela() {
 
 export async function buscaLogin(usuario = "", senha = "") {
   return new Promise((resolve, reject) => {
-    console.log("usydgf");
     login.transaction((tx) => {
       let comando;
       if (usuario === "" && senha === "") {
