@@ -1,63 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground } from 'react-native';
-import { buscaLogin, criaTabela, registraLogin, buscaExiste, delTabela } from '../database/Queries';
-import CheckBox from 'expo-checkbox';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { registraLogin, buscaExiste } from '../database/Queries';
 import { TextInputMask } from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PagCadastro({ navigation }) {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
-  const [checkbox, setCheckbox] = useState(false);
-
-  // é feito ao carregar a página
-  useEffect(() => {
-    criaTabela();
-    estaLogado(setUsuario, setSenha);
-  }, []);
-
-  // checa na memória se há login salvo
-  const estaLogado = async () => {
-    try {
-      const logado = await AsyncStorage.getItem('logado');
-      if (logado !== null) {
-        // pega valores previamente armazenados
-        const dados = await AsyncStorage.getItem('dados');
-        const dadosJson = JSON.parse(dados);
-        if (logado == "real") {
-          fazLogin(dadosJson.usuario, dadosJson.senha);
-        }
-        else {
-          setUsuario(dadosJson.usuario);
-          setSenha(dadosJson.senha);
-        }
-      }
-    } catch (e) {
-      // error reading value
-      console.log(e);
-    }
-  };
-
-  // Salva login localmente
-  const salvaLogin = async (dados, logado) => {
-    try {
-      const jsonDados = JSON.stringify(dados)
-      await AsyncStorage.setItem('dados', jsonDados);
-      await AsyncStorage.setItem('logado', logado);
-    } catch (e) {
-      // saving error
-      console.log(e);
-    }
-  };
-
 
   // Função para cadastro do usuário
   async function registra() {
-
     // marca os parâmetros para cadastro
     const params = {
       usuario: usuario,
@@ -75,34 +31,13 @@ export default function PagCadastro({ navigation }) {
     }
   }
 
-  // função para fazer o login do usuário
-  async function fazLogin(usuario, senha) {
-    // checa se cadastro existe; Se não, retorna erro. Se sim, faz algo
-    const login = await buscaLogin(usuario, senha);
-    if (login.length == 0) {
-      Alert.alert("Senha ou Usuário incorretos.");
-    }
-    else{
-      Alert.alert("Boas vindas de volta!");
-      // se checkbox estiver marcada, salva em cache o login
-      if (checkbox) {
-        await salvaLogin({usuario: usuario, senha: senha}, "real");
-      }
-      else {
-        await salvaLogin({usuario: usuario, senha: ""}, "fake");
-      }
-      // e navega p/ próxima página
-      navigation.navigate("PagDepois");
-    }
-  }
-
 
   return (
     <SafeAreaView style={{flex: 1}}>
       <ImageBackground style={styles.container} source={require('../img/Fundo.jpg')} resizeMode='cover'>
         <StatusBar style="auto" />
         <View style={styles.caixaTitulo}>
-          <Text>Cadastro</Text>
+          <Text style={styles.titulo}>Criar Conta</Text>
         </View>
 
         {/* Input de usuário */}
@@ -158,30 +93,32 @@ export default function PagCadastro({ navigation }) {
               />
           </View>
 
-          {/* checkbox p/ salvar login no cache */}
-          <View style={styles.viewInput}>
-            <Text>Lembrar Login? </Text>
-            <CheckBox 
-                value={checkbox}
-                onValueChange={(toggle) => setCheckbox(toggle)}
-            />
+          <View style={[styles.viewInput, {alignSelf: 'flex-end', backgroundColor: 'transparent', elevation: 0}]}>
+            <Text style={styles.titulo}>Criar </Text>
+            <TouchableOpacity 
+            disabled={usuario == "" || senha == "" || email == "" || telefone == ""}
+            onPress={() => registra()}
+            >
+            <LinearGradient
+              start={{x: 0.0, y: 0.25}} end={{x: 0.5, y: 1.0}}
+              locations={[0,1]}
+              colors={['#E7B688', '#F88B26']}
+              style={styles.botaoCad}
+              >
+                <Icon name='arrow-forward' color={"#fff"} size={35}/>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.viewBotoes}>
-          {/* Botões para Teste */}
-          <TouchableOpacity 
-          style={usuario == "" || senha == "" || email == "" || telefone == "" ? styles.botao2 : styles.botao} 
-          disabled={usuario == "" || senha == "" || email == "" || telefone == ""}
-          onPress={() => registra()}>
-            <Text>Cadastrar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-          style={usuario == "" || senha == "" ? styles.botao2 : styles.botao} 
-          onPress={() => fazLogin(usuario, senha)}
-          disabled={usuario == "" || senha == ""}
-          >
-            <Text>Login</Text>
-          </TouchableOpacity>
+          {/* Botões de Navegação */}
+
+          <View style={{flexDirection: 'row'}}>
+            <Text>Já tem uma conta? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("PagLogin")}>
+              <Text style={styles.txtBotao}>Entrar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ImageBackground>
     </SafeAreaView>
@@ -198,8 +135,7 @@ const styles = StyleSheet.create({
 
   viewBotoes: {
     flex: 1,
-    justifyContent: 'space-between',
-    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     width: 300,
     alignItems: 'center',
   },
@@ -252,18 +188,25 @@ const styles = StyleSheet.create({
     margin: 5
   },
 
-  botao2: {
-    width: 150,
-    height: 35,
-    backgroundColor: '#aaa',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 5,
-    borderRadius: 10,
-  },
-
   textoInput: {
     textAlignVertical: 'center',
+  },
+
+  txtBotao: {
+    textDecorationLine: 'underline',
+  },
+  
+  botaoCad: {
+    display: 'flex',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10
+  },
+
+  titulo: {
+    fontSize: 30,
+    fontWeight: 'bold',
   }
 
 });

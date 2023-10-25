@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Image, View, } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,10 +7,17 @@ import PagCadastro from './src/Pages/PagCadastro';
 import PagDepois from './src/Pages/PagDepois';
 import ModalMenu from './src/components/ModalMenu';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { criaTabela } from './src/database/Queries';
+import PagLogin from './src/Pages/PagLogin';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
   const [modalVisible, setModalVisible] = useState(false)
+
+    // é feito ao carregar a página
+    useEffect(() => {
+      criaTabela();
+    }, []);
 
   return(
     <NavigationContainer>
@@ -28,6 +35,7 @@ export default function App() {
           animation: 'slide_from_right'  })}>
 
         <Stack.Screen options={{headerShown: false}} name='PagCadastro' component={PagCadastro}/>
+        <Stack.Screen options={{headerShown: false}} name='PagLogin' component={PagLogin}/>
         <Stack.Screen  name='PagDepois' component={PagDepois}/>
       </Stack.Navigator>
     </NavigationContainer>
