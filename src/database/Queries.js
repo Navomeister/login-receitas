@@ -8,7 +8,9 @@ export function criaTabela() {
         CREATE TABLE IF NOT EXISTS Login (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           usuario TEXT,
-          senha TEXT
+          senha TEXT,
+          email TEXT,
+          telefone TEXT
         );
       `,
       [],
@@ -18,6 +20,20 @@ export function criaTabela() {
     );
   });
 }
+
+// export function delTabela() {
+//   login.transaction((tx) => {
+//     tx.executeSql(
+//       `
+//         DROP TABLE Login;
+//       `,
+//       [],
+//       (_, error) => {
+//         console.log(error);
+//       }
+//     );
+//   });
+// }
 
 export async function buscaLogin(usuario = "", senha = "") {
   return new Promise((resolve, reject) => {
@@ -50,11 +66,13 @@ export async function registraLogin(params) {
     login.transaction((tx) => {
       tx.executeSql(
         `
-            INSERT INTO Login (usuario, senha) VALUES (?, ?);
+            INSERT INTO Login (usuario, senha, email, telefone) VALUES (?, ?, ?, ?);
           `,
         [
           params.usuario,
-          senhaEncrip
+          senhaEncrip,
+          params.email,
+          params.telefone
         ],
         (_, { rowsAffected, insertId }) => {
           if (rowsAffected > 0) {
@@ -71,3 +89,24 @@ export async function registraLogin(params) {
   })
 }
 
+export async function buscaExiste(usuario = "", email = "", telefone = "") {
+  return new Promise((resolve, reject) => {
+    login.transaction((tx) => {
+      let comando;
+      if (usuario === "" && email === "") {
+        return ([]);
+      } else {
+        comando = `SELECT * FROM Login WHERE usuario = "${usuario}" OR email ="${email}" OR telefone ="${telefone}";`;
+      }
+      tx.executeSql(comando, [],
+        (transaction, resultado) => {
+          console.log(resultado);
+          resolve(resultado.rows._array);
+        },
+        (_, error) => {
+          reject(error)
+        }
+      )
+    })
+  })
+}
