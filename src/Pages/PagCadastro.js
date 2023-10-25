@@ -26,6 +26,7 @@ export default function PagCadastro({ navigation }) {
     const cadastros = await buscaExiste(usuario, email, telefone);
     if (cadastros.length == 0) {
       await registraLogin(params);
+      navigation.navigate("PagLogin");
     } else {
       Alert.alert("Usuário já cadastrado");
     }
@@ -70,6 +71,7 @@ export default function PagCadastro({ navigation }) {
               keyboardType='email-address'
               onChangeText={setEmail}
               autoCorrect={false}
+              autoComplete='off'
               style={styles.input}
               placeholder='Email'
             />
@@ -135,9 +137,8 @@ const styles = StyleSheet.create({
 
   viewBotoes: {
     flex: 1,
-    justifyContent: 'space-evenly',
-    width: 300,
-    alignItems: 'center',
+    justifyContent: 'space-around',
+    // alignItems: 'center',
   },
   
   botao: {
