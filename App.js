@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Image, View, } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -22,7 +21,7 @@ export default function App() {
   return(
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName='PagCadastro'
+        initialRouteName='PagLogin'
         screenOptions={({route, navigation}) => 
         ({ headerLeft: () => (<Image style={styles.imagemLogo} source={require("./src/img/Logo.png")}/>), 
           headerTitle: "", 
@@ -34,8 +33,8 @@ export default function App() {
           ), 
           animation: 'slide_from_right'  })}>
 
-        <Stack.Screen options={{headerShown: false}} name='PagCadastro' component={PagCadastro}/>
-        <Stack.Screen options={{headerShown: false}} name='PagLogin' component={PagLogin}/>
+        <Stack.Screen options={{headerShown: false, animation: 'default'}} name='PagCadastro' component={PagCadastro}/>
+        <Stack.Screen options={{headerShown: false, animation: 'default'}} name='PagLogin' component={PagLogin}/>
         <Stack.Screen  name='PagDepois' component={PagDepois}/>
       </Stack.Navigator>
     </NavigationContainer>

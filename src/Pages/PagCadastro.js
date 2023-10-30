@@ -1,16 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground, Keyboard, Dimensions } from 'react-native';
 import { registraLogin, buscaExiste } from '../database/Queries';
 import { TextInputMask } from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get("window");
 
 export default function PagCadastro({ navigation }) {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+
+  
+
+  // função p/ saber quando teclado está aberto
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  useEffect(() => {
+      const keyboardDidShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        () => {
+          setKeyboardVisible(true); // or some other action
+        }
+      );
+      const keyboardDidHideListener = Keyboard.addListener(
+        'keyboardDidHide',
+        () => {
+          setKeyboardVisible(false); // or some other action
+        }
+      );
+
+      return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+      };
+    }, []);
 
   // Função para cadastro do usuário
   async function registra() {
@@ -42,7 +68,7 @@ export default function PagCadastro({ navigation }) {
         </View>
 
         {/* Input de usuário */}
-        <View style={styles.caixaDropdowns}>
+        <View style={styles.caixaInputs}>
           <View style={styles.viewInput}>
             <Icon name='person' size={24} color={"#9A9A9A"}/>
             <TextInput
@@ -95,7 +121,7 @@ export default function PagCadastro({ navigation }) {
               />
           </View>
 
-          <View style={[styles.viewInput, {alignSelf: 'flex-end', backgroundColor: 'transparent', elevation: 0}]}>
+          <View style={[styles.viewInput, styles.viewBotaoLar]}>
             <Text style={styles.titulo}>Criar </Text>
             <TouchableOpacity 
             disabled={usuario == "" || senha == "" || email == "" || telefone == ""}
@@ -112,9 +138,8 @@ export default function PagCadastro({ navigation }) {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.viewBotoes}>
+        <View style={!isKeyboardVisible ? styles.viewBotoes : styles.viewBotoesSome}>
           {/* Botões de Navegação */}
-
           <View style={{flexDirection: 'row'}}>
             <Text>Já tem uma conta? </Text>
             <TouchableOpacity onPress={() => navigation.navigate("PagLogin")}>
@@ -140,6 +165,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     // alignItems: 'center',
   },
+
+  viewBotoesSome: {
+    flex: 1,
+    justifyContent: 'space-around',
+    display: 'none',
+    // alignItems: 'center',
+  },
   
   botao: {
     width: 150,
@@ -157,11 +189,12 @@ const styles = StyleSheet.create({
 
   },
 
-  caixaDropdowns: {
+  caixaInputs: {
     flex: 3,
     paddingBottom: 10,
-    width: 300,
+    width: width,
     flexDirection: 'column',
+    paddingHorizontal: 20,
   },
 
   viewInput: {
@@ -170,6 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     margin: 15,
     padding: 10,
+    paddingLeft: 15,
     borderRadius: 40,
   },
 
@@ -208,6 +242,13 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 30,
     fontWeight: 'bold',
-  }
+  },
+
+  viewBotaoLar: {
+    alignSelf: 'flex-end', 
+    backgroundColor: 'transparent', 
+    elevation: 0,
+    alignItems: 'center',
+  },
 
 });

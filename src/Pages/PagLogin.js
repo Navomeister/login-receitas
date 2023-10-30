@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground } from 'react-native';
-import { buscaLogin, criaTabela, registraLogin, buscaExiste, delTabela } from '../database/Queries';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground, Dimensions } from 'react-native';
+import { buscaLogin } from '../database/Queries';
 import CheckBox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TextInputMask } from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get("window");
 
 export default function PagLogin({ navigation }) {
   const [usuario, setUsuario] = useState("");
@@ -78,11 +80,11 @@ export default function PagLogin({ navigation }) {
       <ImageBackground style={styles.container} source={require('../img/Fundo.jpg')} resizeMode='cover'>
         <StatusBar style="auto" />
         <View style={styles.caixaTitulo}>
-          <Text>Login</Text>
+          <Text style={styles.titulo}>Login</Text>
         </View>
 
         {/* Input de usuário */}
-        <View style={styles.caixaDropdowns}>
+        <View style={styles.caixaInputs}>
           <View style={styles.viewInput}>
             <Icon name='person' size={24} color={"#9A9A9A"}/>
             <TextInput
@@ -113,15 +115,26 @@ export default function PagLogin({ navigation }) {
             />
           </View>
 
+          <View style={[styles.viewInput, styles.viewBotaoLar]}>
+            <TouchableOpacity 
+            disabled={usuario == "" || senha == ""}
+            onPress={() => fazLogin(usuario, senha)}
+            style={{flexDirection: 'row'}}
+            >
+            <Text style={styles.titulo}>Entrar </Text>
+            <LinearGradient
+              start={{x: 0.0, y: 0.25}} end={{x: 0.5, y: 1.0}}
+              locations={[0,1]}
+              colors={['#E7B688', '#F88B26']}
+              style={styles.botaoCad}
+              >
+                <Icon name='arrow-forward' color={"#fff"} size={35}/>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.viewBotoes}>
           {/* Botões para Teste */}
-          <TouchableOpacity  
-          onPress={() => fazLogin(usuario, senha)}
-          disabled={usuario == "" || senha == ""}
-          >
-            <Text>Login</Text>
-          </TouchableOpacity>
           <View style={{flexDirection: 'row'}}>
             <Text>Ainda não tem uma conta? </Text>
             <TouchableOpacity onPress={() => navigation.navigate("PagCadastro")}>
@@ -165,11 +178,12 @@ const styles = StyleSheet.create({
 
   },
 
-  caixaDropdowns: {
+  caixaInputs: {
     flex: 3,
     paddingBottom: 10,
-    width: 300,
+    width: width,
     flexDirection: 'column',
+    paddingHorizontal: 20
   },
 
   viewInput: {
@@ -178,16 +192,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     margin: 15,
     padding: 10,
+    paddingLeft: 15,
     borderRadius: 40,
   },
 
   input: {
     width: "100%", 
     paddingLeft: 10,
-  },
-
-  flatlist: {
-    backgroundColor: "#faa",
   },
 
   texto: {
@@ -216,6 +227,14 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 30,
     fontWeight: 'bold',
-  }
+    
+  },
+
+  viewBotaoLar: {
+    alignSelf: 'flex-end', 
+    backgroundColor: 'transparent', 
+    elevation: 0,
+    alignItems: 'center',
+  },
 
 });

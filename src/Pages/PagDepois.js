@@ -7,7 +7,7 @@ export default function PagDepois({ navigation }) {
   const desfazLogin = async () => {
     try {
       await AsyncStorage.setItem('dados', "");
-      await AsyncStorage.setItem('logado', "");
+      await AsyncStorage.setItem('logado', "fake");
     } catch (e) {
       // saving error
       console.log(e);
@@ -15,7 +15,7 @@ export default function PagDepois({ navigation }) {
   };
     return(
         <View>
-            <TouchableOpacity onPress={() => (navigation.navigate("PagLogin"), desfazLogin())}>
+            <TouchableOpacity onPress={() => (desfazLogin(), navigation.navigate("PagLogin"))}>
                 <Text> Voltar </Text>
             </TouchableOpacity>
         </View>
