@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground, Dimensions } from 'react-native';
-import { buscaLogin } from '../database/Queries';
 import CheckBox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { TentaLogin } from '../mongoDB';
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -13,6 +15,7 @@ export default function PagLogin({ navigation }) {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [checkbox, setCheckbox] = useState(false);
+  const [carregando, setCarregando] = useState("false");
 
   // é feito ao carregar a página
   useEffect(() => {
@@ -55,13 +58,16 @@ export default function PagLogin({ navigation }) {
 
   // função para fazer o login do usuário
   async function fazLogin(usuario, senha) {
+    const params = {usuario: usuario, senha: senha};
+
+    setCarregando(true);
     // checa se cadastro existe; Se não, retorna erro. Se sim, faz algo
-    const login = await buscaLogin(usuario, senha);
-    if (login.length == 0) {
+    const login = await TentaLogin(params);
+    if (login.document == null) {
+      setCarregando(false);
       Alert.alert("Senha ou Usuário incorretos.");
     }
     else{
-      Alert.alert("Boas vindas de volta!");
       // se checkbox estiver marcada, salva em cache o login
       if (checkbox) {
         await salvaLogin({usuario: usuario, senha: senha}, "real");
@@ -69,6 +75,10 @@ export default function PagLogin({ navigation }) {
       else {
         await salvaLogin({usuario: usuario, senha: ""}, "fake");
       }
+
+      setCarregando(false);
+      Alert.alert("Boas vindas de volta!");
+      
       // e navega p/ próxima página
       navigation.navigate("PagDepois");
     }
@@ -79,6 +89,10 @@ export default function PagLogin({ navigation }) {
     <SafeAreaView style={{flex: 1}}>
       <ImageBackground style={styles.container} source={require('../img/Fundo.jpg')} resizeMode='cover'>
         <StatusBar style="auto" />
+        <Spinner
+          visible={carregando}
+          color='#F88B26'
+        />
         <View style={styles.caixaTitulo}>
           <Text style={styles.titulo}>Login</Text>
         </View>

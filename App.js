@@ -8,6 +8,7 @@ import ModalMenu from './src/components/ModalMenu';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { criaTabela } from './src/database/Queries';
 import PagLogin from './src/Pages/PagLogin';
+import { ProcuraUsuario } from './src/mongoDB';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -17,7 +18,7 @@ export default function App() {
     useEffect(() => {
       criaTabela();
     }, []);
-
+    
   return(
     <NavigationContainer>
       <Stack.Navigator 

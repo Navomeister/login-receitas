@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground, Keyboard, Dimensions } from 'react-native';
-import { registraLogin, buscaExiste } from '../database/Queries';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, SafeAreaView, ImageBackground, Keyboard, Dimensions, Platform } from 'react-native';
 import { TextInputMask } from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Cadastra, ProcuraEmail, ProcuraUsuario } from '../mongoDB';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const { width, height } = Dimensions.get("window");
 
@@ -13,7 +14,7 @@ export default function PagCadastro({ navigation }) {
   const [senha, setSenha] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
-
+  const [carregando, setCarregando] = useState("false");
   
 
   // função p/ saber quando teclado está aberto
@@ -48,13 +49,19 @@ export default function PagCadastro({ navigation }) {
       telefone: telefone
     };
 
+    setCarregando(true);
+
     // Checa se o usuário já foi cadastrado; Se não, o cadastra; Se sim, informa que já há um cadastro.
-    const cadastros = await buscaExiste(usuario, email, telefone);
-    if (cadastros.length == 0) {
-      await registraLogin(params);
+    const usuarioCadastrado = await ProcuraUsuario(usuario);
+    const emailCadastrado = await ProcuraEmail(email);
+    if (usuarioCadastrado.document == null && emailCadastrado.document == null) {
+      await Cadastra(params);
+
+      setCarregando(false);
       navigation.navigate("PagLogin");
     } else {
-      Alert.alert("Usuário já cadastrado");
+      setCarregando(false);
+      Alert.alert("Usuário ou Email já cadastrado");
     }
   }
 
@@ -63,6 +70,10 @@ export default function PagCadastro({ navigation }) {
     <SafeAreaView style={{flex: 1}}>
       <ImageBackground style={styles.container} source={require('../img/Fundo.jpg')} resizeMode='cover'>
         <StatusBar style="auto" />
+        <Spinner
+          visible={carregando}
+          color='#F88B26'
+        />
         <View style={styles.caixaTitulo}>
           <Text style={styles.titulo}>Criar Conta</Text>
         </View>
